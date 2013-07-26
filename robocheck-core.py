@@ -53,7 +53,7 @@ def getErrors(toolOutput):
                     error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
                     errorList.append(error)
                     break    
-        if "Invalid write" in toolOutput[i]:
+        if "Invalid write" in toolOutput[i] or "Invalid read" in toolOutput[i]:
              ffl = getFileFunctionLine(toolOutput[i+1])
              error = Error("INVALID ACCESS", ffl[0], ffl[1], ffl[2])       
              errorList.append(error)
