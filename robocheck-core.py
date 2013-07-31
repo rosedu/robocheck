@@ -7,9 +7,11 @@
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                 last review 26.07.2013
 """
+import os
 import sys
 import json
 import subprocess
+import time
 
 class Error:
     def __init__(self, code, sourceFile, function, line):
@@ -37,7 +39,7 @@ class Error:
             return not result 
     
 
-SOURCES = ["test1.c"]
+sources = []
 
 def getFileFunctionLine( outputLine ):
     details = []
@@ -51,7 +53,7 @@ def getFileFunctionLine( outputLine ):
     fflNotSplited = outputLine.split(": ")[1]
 
     sourceFile = fflNotSplited.split(" (")[1].split(":")[0]
-    if sourceFile not in SOURCES:
+    if sourceFile not in sources:
         return None
 
     function = fflNotSplited.split(" (")[0]
@@ -111,22 +113,47 @@ def getErrors(toolOutput):
     return errorList   
 
 def main():
-   process = []
-   process.append('valgrind')
-   process.append('--leak-check=full')
-   process.append('--track-origins=yes')
-   process.append('--track-fds=yes')
-   process.append('./a.out')
+    global sources
+    extractCmd = []
+    extractCmd.append('unzip')
+    extractCmd.append('-q')
+    extractCmd.append('-d')
+    extractCmd.append('current-test/')
+    extractCmd.append(sys.argv[1])
+    x = subprocess.Popen(extractCmd)
+    time.sleep(0.5)
 
-   x = subprocess.Popen(process, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-   toolOutput = x.communicate()[1].splitlines()
-   errors = getErrors(toolOutput)
-   for err in errors:
-       print err.code
-       print err.sourceFile
-       print err.function
-       print err.line
-       print    
+    sources = os.listdir('./current-test/src')
+    exes = os.listdir('./current-test/bins')
+    exesPath = "./current-test/bins/"
+    returnPath = os.getcwd()
+    process = []
+    process.append('valgrind')
+    process.append('--leak-check=full')
+    process.append('--track-origins=yes')
+    process.append('--track-fds=yes')
+    
+    os.chdir(exesPath)
+    for exe in exes:
+        exe = "./" + exe
+        process.append(exe)
+        print process
+        x = subprocess.Popen(process, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        x.wait()
+        process.remove(exe)
+        if x.returncode != 0:
+            continue
+        toolOutput = x.communicate()[1].splitlines()
+        """for i in toolOutput:
+            print i """
+        errors = getErrors(toolOutput)
+        for err in errors:
+            print err.code
+            print err.sourceFile
+            print err.function
+            print err.line
+            print
+    os.chdir(returnPath)
 
 if __name__ == '__main__':
     main()
