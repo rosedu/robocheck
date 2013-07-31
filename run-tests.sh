@@ -3,6 +3,7 @@
 starting_path=$(pwd)
 
 tests=$(ls -1 ./tests)
+mkdir current-test
 for current in $tests; do
     echo $current
     current="./tests/$current/*"
@@ -25,3 +26,4 @@ for current in $tests; do
     python robocheck-core.py ./current-test/test.zip
     rm -r ./current-test/*
 done
+rm -r current-test
