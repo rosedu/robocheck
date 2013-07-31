@@ -18,12 +18,36 @@ class Error:
         self.function = function
         self.line = line
 
+    def __eq__(self, other):
+        if isinstance(other, Error):
+            result = False
+            if self.code == other.code \
+                and self.sourceFile == other.sourceFile \
+                and self.function == other.function \
+                and self.line == other.line:
+                
+                result = True
+            return result
+        return NotImplemented
+
+    def __ne__(self, other):
+            result = self.__eq__(other)
+            if result is NotImplemented:
+                return result
+            return not result 
+    
 
 SOURCES = ["test1.c"]
 
 def getFileFunctionLine( outputLine ):
     details = []
-    
+    if ": " not in outputLine:
+        return None
+    if "at " not in outputLine and "by " not in outputLine:
+        return None
+    if "exit" in outputLine:
+        return None
+
     fflNotSplited = outputLine.split(": ")[1]
 
     sourceFile = fflNotSplited.split(" (")[1].split(":")[0]
@@ -43,27 +67,56 @@ def getErrors(toolOutput):
     errorList = []
     nrLinesOutput = len(toolOutput)
     for i in range( nrLinesOutput ):
+        error = None
         if "bytes in" and "are definitely lost in loss record" in toolOutput[i]:
             for j in range(i+1, nrLinesOutput):
-                if "by" not in toolOutput[j]  and "at" not in toolOutput[j]:
-                    print toolOutput[j]
-                    break
                 ffl = getFileFunctionLine(toolOutput[j]) 
                 if ffl is not None:
                     error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
-                    errorList.append(error)
-                    break    
+                    break
+                        
         if "Invalid write" in toolOutput[i] or "Invalid read" in toolOutput[i]:
-             ffl = getFileFunctionLine(toolOutput[i+1])
-             error = Error("INVALID ACCESS", ffl[0], ffl[1], ffl[2])       
-             errorList.append(error)
+            for j in range(i+1, nrLinesOutput):
+                ffl = getFileFunctionLine(toolOutput[j])
+                if ffl is not None:
+                    error = Error("INVALID ACCESS", ffl[0], ffl[1], ffl[2])
+                    break
+
+        if "Uninitialised value was created" in toolOutput[i]:
+            for j in range(i+1, nrLinesOutput):
+                ffl = getFileFunctionLine(toolOutput[j])
+                if ffl is not None:
+                    error = Error("UNITIALIZED VARIABLE USAGE", ffl[0], ffl[1], ffl[2])
+                    break
+
+        if "Invalid free" in toolOutput[i]:
+            for j in range(i+1, nrLinesOutput):
+                ffl = getFileFunctionLine(toolOutput[j])
+                if ffl is not None:
+                    error = Error("INVALID FREE", ffl[0], ffl[1], ffl[2])
+                    break
+
+        if "Open file descriptor" in toolOutput[i] \
+            and "<inherited from parent>" not in toolOutput[i+1]:
+
+            for j in range(i+1, nrLinesOutput):
+                ffl = getFileFunctionLine(toolOutput[j])
+                if ffl is not None:
+                    error = Error("OPENED, BUT NOT CLOSED FILE DESCRIPTOR", ffl[0], ffl[1], ffl[2])
+                    break
+
+        if error is not None and error not in errorList:
+            errorList.append(error)
+
     return errorList   
 
 def main():
    process = []
    process.append('valgrind')
    process.append('--leak-check=full')
-   process.append('./tests/a.out')
+   process.append('--track-origins=yes')
+   process.append('--track-fds=yes')
+   process.append('./a.out')
 
    x = subprocess.Popen(process, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    toolOutput = x.communicate()[1].splitlines()
