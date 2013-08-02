@@ -133,6 +133,7 @@ def main():
     process.append('--track-origins=yes')
     process.append('--track-fds=yes')
     
+    errorJsonList = []    
     os.chdir(exesPath)
     for exe in exes:
         exe = "./" + exe
@@ -148,11 +149,13 @@ def main():
             print i """
         errors = getErrors(toolOutput)
         for err in errors:
-            print err.code
-            print err.sourceFile
-            print err.function
-            print err.line
-            print
+            errorJsonList.append( {
+                'code': err.code,
+                'sourceFile': err.sourceFile,
+                'function': err.function,
+                'line': err.line,
+                })
+        print json.dumps(errorJsonList, indent=2)
     os.chdir(returnPath)
 
 if __name__ == '__main__':
