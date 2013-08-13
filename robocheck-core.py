@@ -3,9 +3,8 @@
    General description:
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
-   file with all the errors. 
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 05.08.2013
+                last review 13.08.2013
 """
 import os
 import sys
@@ -14,9 +13,20 @@ import subprocess
 import time
 from Errors import *
 import CValgrind
+import Config
 
-
+        
 def main():
+    if "--config" in sys.argv:
+        Config.createConfigFile()
+        return
+    couldRead = Config.readConfigFile()
+    if couldRead is False:
+        return
+
+    language = Config.getLanguage()
+    errorsToLookFor = Config.getErrorsToLookFor()
+
     extractCmd = []
     extractCmd.append('unzip')
     extractCmd.append('-q')
@@ -24,7 +34,7 @@ def main():
     extractCmd.append('current-test/')
     extractCmd.append(sys.argv[1])
     x = subprocess.Popen(extractCmd)
-    time.sleep(0.5)
+    x.wait()
 
     errorJsonList = []    
     sources = os.listdir('./current-test/src')
@@ -41,12 +51,12 @@ def main():
             'line': err.line,
             })
     print json.dumps(errorJsonList, indent=2)
+    os.chdir(returnPath)
     
     jsonOutput = open('JsonOutput', 'w')
     jsonOutput.write(json.dumps(errorJsonList, indent=2))
     jsonOutput.close()
 
-    os.chdir(returnPath)
 
 if __name__ == '__main__':
     main()
