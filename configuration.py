@@ -2,7 +2,7 @@
     
     General description:
      This is the module that handles the configurations for Robocheck. It 
-    parses and helps the user generate the ConfigFile.
+    parses and helps the user generate the config.json.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                  last review 13.08.2013
 """
@@ -57,9 +57,11 @@ def createConfigFile():
         dim = (40 - len(error))/2
         for i in range(1,dim):
             print ' ',
-        print "[y/N]: ",
+        print "[Y/n]: ",
         option = sys.stdin.readline().splitlines()[0]
-        if option is "Y" or option is "y":
+        if option is "N" or option is "n":
+            continue
+        else:
             toLookFor.append(error)
     os.system('clear')
     print "Your configuration: "
@@ -75,9 +77,9 @@ def createConfigFile():
     print "\nIs this configuration correct? [Y/n]:"
     option = sys.stdin.readline().splitlines()[0]
     if option is "N" or option is "n":
-        createConfigFile()
+        createconfig.json()
     else:
-        config = open('ConfigFile', 'w')
+        config = open('config.json', 'w')
         jsonList = []
         jsonList.append( { 'Language': language, 'Errors': toLookFor} )
         config.write(json.dumps(jsonList, indent=2))
@@ -89,7 +91,7 @@ def readConfigFile():
     global errorsToLookFor
 
     try:
-        configFile = open('ConfigFile', 'r')
+        configFile = open('config.json', 'r')
     except IOError as e:
         print "ERROR: Robocheck is not configured!"
         print "Please run robocheck-core.py --config to configure it!"

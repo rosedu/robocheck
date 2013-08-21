@@ -13,7 +13,22 @@
 
 import subprocess
 from Errors import *
+compatibleErrors = [ "MEMORY LEAK",
+    "INVALID ACCESS",
+    "UNITIALIZED VARIABLE USAGE",
+    "INVALID FREE",
+    "OPENED, BUT NOT CLOSED FILE DESCRIPTOR"]
+
 sources = []
+
+def canHandleErrors( errorList ):
+    global compatibleErrors
+    for error in errorList:
+        if error in compatibleErrors:
+            return True
+    return False
+    
+
 def getFileFunctionLine( outputLine ):
     details = []
     if ": " not in outputLine:
@@ -37,42 +52,68 @@ def getFileFunctionLine( outputLine ):
     details.append(line)
     return details
       
+def getCompatibleErrorsToLookFor( errorList ) :
+    global compatibleErrors
+    errorsToLookFor = []
+    for error in errorList:
+        if error in compatibleErrors:
+            errorsToLookFor.append( error )
+    return errorsToLookFor
 
-def getErrors(toolOutput):
+
+def getErrors(toolOutput, errorsToLookFor):
     errorList = []
     nrLinesOutput = len(toolOutput)
+
+    errorsToLookFor = getCompatibleErrorsToLookFor( errorsToLookFor )
+    print errorsToLookFor
     for i in range( nrLinesOutput ):
         error = None
-        if "bytes in" and "are definitely lost in loss record" in toolOutput[i]:
+        if "bytes in" and "are definitely lost in loss record" in toolOutput[i] and \
+            "MEMORY LEAK" in errorsToLookFor :
+
             for j in range(i+1, nrLinesOutput):
                 ffl = getFileFunctionLine(toolOutput[j]) 
                 if ffl is not None:
                     error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
                     break
+                    
                         
-        if "Invalid write" in toolOutput[i] or "Invalid read" in toolOutput[i]:
+        if "Invalid write" in toolOutput[i] and \
+            "INVALID ACCESS" in errorsToLookFor \
+            or "Invalid read" in toolOutput[i] and \
+            "INVALID ACCESS" in errorsToLookFor :
+
             for j in range(i+1, nrLinesOutput):
                 ffl = getFileFunctionLine(toolOutput[j])
                 if ffl is not None:
                     error = Error("INVALID ACCESS", ffl[0], ffl[1], ffl[2])
                     break
 
-        if "Uninitialised value was created" in toolOutput[i]:
+
+        if "Uninitialised value was created" in toolOutput[i] and \
+            "UNITIALIZED VARIABLE USAGE" in errorsToLookFor:
+
             for j in range(i+1, nrLinesOutput):
                 ffl = getFileFunctionLine(toolOutput[j])
                 if ffl is not None:
                     error = Error("UNITIALIZED VARIABLE USAGE", ffl[0], ffl[1], ffl[2])
                     break
 
-        if "Invalid free" in toolOutput[i]:
+
+        if "Invalid free" in toolOutput[i] and \
+            "INVALID FREE" in errorsToLookFor :
+
             for j in range(i+1, nrLinesOutput):
                 ffl = getFileFunctionLine(toolOutput[j])
                 if ffl is not None:
                     error = Error("INVALID FREE", ffl[0], ffl[1], ffl[2])
                     break
 
+
         if "Open file descriptor" in toolOutput[i] \
-            and "<inherited from parent>" not in toolOutput[i+1]:
+            and "<inherited from parent>" not in toolOutput[i+1] and \
+            "OPENED, BUT NOT CLOSED FILE DESCRIPTOR" in errorsToLookFor :
 
             for j in range(i+1, nrLinesOutput):
                 ffl = getFileFunctionLine(toolOutput[j])
@@ -84,8 +125,10 @@ def getErrors(toolOutput):
             errorList.append(error)
 
     return errorList
-def runToolGetErrors(exes, sourceFiles):
+def runToolGetErrors(exes, sourceFiles, errorList):
     global sources
+    global compatibleErrors
+    
     sources = sourceFiles
     process = []
     process.append('valgrind')
@@ -104,6 +147,6 @@ def runToolGetErrors(exes, sourceFiles):
         if x.returncode != 0:
             continue
         toolOutput = x.communicate()[1].splitlines()
-        errors = getErrors(toolOutput)
+        errors = getErrors(toolOutput, errorList)
     return errors
   
