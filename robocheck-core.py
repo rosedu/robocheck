@@ -12,21 +12,19 @@ import json
 import subprocess
 import time
 from Errors import *
-import CValgrind
-import Config
+import valgrind
+import configuration
 
-        
 def main():
     if "--config" in sys.argv:
-        Config.createConfigFile()
+        configuration.createConfigFile()
         return
-    couldRead = Config.readConfigFile()
+    couldRead = configuration.readConfigFile()
     if couldRead is False:
         return
 
-    language = Config.getLanguage()
-    errorsToLookFor = Config.getErrorsToLookFor()
-
+    language = configuration.getLanguage()
+    errorsToLookFor = configuration.getErrorsToLookFor()
     extractCmd = []
     extractCmd.append('unzip')
     extractCmd.append('-q')
@@ -36,13 +34,13 @@ def main():
     x = subprocess.Popen(extractCmd)
     x.wait()
 
-    errorJsonList = []    
+    errorJsonList = []
     sources = os.listdir('./current-test/src')
     exes = os.listdir('./current-test/bins')
     exesPath = "./current-test/bins/"
     returnPath = os.getcwd()
     os.chdir(exesPath)
-    errors = CValgrind.runToolGetErrors(exes, sources)
+    errors = valgrind.runToolGetErrors(exes, sources, errorsToLookFor)
     for err in errors:
         errorJsonList.append( {
             'code': err.code,
@@ -52,11 +50,11 @@ def main():
             })
     print json.dumps(errorJsonList, indent=2)
     os.chdir(returnPath)
-    
-    jsonOutput = open('JsonOutput', 'w')
+
+    jsonOutput = open('output.json', 'w')
     jsonOutput.write(json.dumps(errorJsonList, indent=2))
     jsonOutput.close()
 
 
 if __name__ == '__main__':
-    main()
+   main()

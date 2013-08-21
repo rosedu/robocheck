@@ -1,12 +1,12 @@
 """ CValgrind.py
-    
+
     General description:
      This is a module that check for errors using  Valgrind tool for programs 
     that are written in C. Compatible errors: Memory leak, Invalid access, 
     Invalid free, Unitialized variable usage, Open, but not closed 
     file descriptor. The function runToolGetErrors returns a list of
     instances of Error class, defined in Errors.py
-    
+
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                 last review 05.08.2013
 """
@@ -27,7 +27,7 @@ def canHandleErrors( errorList ):
         if error in compatibleErrors:
             return True
     return False
-    
+
 
 def getFileFunctionLine( outputLine ):
     details = []
@@ -46,12 +46,12 @@ def getFileFunctionLine( outputLine ):
 
     function = fflNotSplited.split(" (")[0]
     line = fflNotSplited.split(":")[1].split(")")[0]
-    
+
     details.append(sourceFile)
     details.append(function)
     details.append(line)
     return details
-      
+
 def getCompatibleErrorsToLookFor( errorList ) :
     global compatibleErrors
     errorsToLookFor = []
@@ -77,8 +77,8 @@ def getErrors(toolOutput, errorsToLookFor):
                 if ffl is not None:
                     error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
                     break
-                    
-                        
+
+
         if "Invalid write" in toolOutput[i] and \
             "INVALID ACCESS" in errorsToLookFor \
             or "Invalid read" in toolOutput[i] and \
@@ -125,10 +125,12 @@ def getErrors(toolOutput, errorsToLookFor):
             errorList.append(error)
 
     return errorList
+
+
 def runToolGetErrors(exes, sourceFiles, errorList):
     global sources
     global compatibleErrors
-    
+
     sources = sourceFiles
     process = []
     process.append('valgrind')
@@ -149,4 +151,4 @@ def runToolGetErrors(exes, sourceFiles, errorList):
         toolOutput = x.communicate()[1].splitlines()
         errors = getErrors(toolOutput, errorList)
     return errors
-  
+

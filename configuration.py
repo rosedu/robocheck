@@ -1,12 +1,12 @@
 """Config.py
-    
+
     General description:
      This is the module that handles the configurations for Robocheck. It 
     parses and helps the user generate the config.json.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                  last review 13.08.2013
 """
-    
+
 import json
 import sys
 import os
@@ -21,10 +21,10 @@ def createConfigFile():
     os.chdir('languages')
 
     toLookFor = []
-    
+
     for i in range(0, len(languages)):
         print i, languages[i]
-    
+
     option = sys.stdin.readline().splitlines()[0]
     if option.isdigit():
         option = int(option)
@@ -32,7 +32,7 @@ def createConfigFile():
     else:
         print "You must enter a number!"
         return False
-    
+
     os.chdir(language)
     try:
         errorListFile = open("ErrorList", "r")
@@ -49,7 +49,7 @@ def createConfigFile():
     os.chdir(returnPath)
     for i in range(0, len(errors)):
         errors[i] = errors[i].splitlines()[0]
-    
+
 
     print "Errors to look for:"
     for error in errors:
@@ -83,7 +83,7 @@ def createConfigFile():
         jsonList = []
         jsonList.append( { 'Language': language, 'Errors': toLookFor} )
         config.write(json.dumps(jsonList, indent=2))
-        config.close()      
+        config.close()
         return True
 
 def readConfigFile():
@@ -95,12 +95,12 @@ def readConfigFile():
     except IOError as e:
         print "ERROR: Robocheck is not configured!"
         print "Please run robocheck-core.py --config to configure it!"
-        return False 
+        return False
 
     config =json.load(configFile)
     language = config[0]['Language']
     errorsToLookFor = config[0]['Errors']
-    return True 
+    return True
 
 def getLanguage():
     global language
