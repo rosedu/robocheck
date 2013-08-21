@@ -9,6 +9,10 @@
 """
 
 class Error:
+    code = -1
+    sourceFile = -1
+    function = -1
+    line = -1
     def __init__(self, code, sourceFile, function, line):
         self.code = code
         self.sourceFile = sourceFile
