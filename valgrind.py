@@ -12,7 +12,7 @@
 """
 
 import subprocess
-from Errors import *
+from errors import *
 compatibleErrors = [ "MEMORY LEAK",
     "INVALID ACCESS",
     "UNITIALIZED VARIABLE USAGE",
@@ -20,6 +20,9 @@ compatibleErrors = [ "MEMORY LEAK",
     "OPENED, BUT NOT CLOSED FILE DESCRIPTOR"]
 
 sources = []
+
+def toolIsInstalled( platform ):
+    return platform.toolIsInstalled("valgrind")
 
 def canHandleErrors( errorList ):
     global compatibleErrors

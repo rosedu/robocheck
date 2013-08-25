@@ -4,18 +4,24 @@
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 13.08.2013
+                last review 25.08.2013
 """
 import os
 import sys
 import json
 import subprocess
 import time
-from Errors import *
+from errors import *
 import valgrind
 import configuration
+import platformhandler
 
 def main():
+    sys.path.insert(0, "platforms")
+    platformInstance = platformhandler.getInstance()
+    if platformInstance is None:
+        print "ERROR: Your OS is not supported by Robocheck"
+
     if "--config" in sys.argv:
         configuration.createConfigFile()
         return
@@ -25,20 +31,22 @@ def main():
 
     language = configuration.getLanguage()
     errorsToLookFor = configuration.getErrorsToLookFor()
+
     extractCmd = []
     extractCmd.append('unzip')
     extractCmd.append('-q')
     extractCmd.append('-d')
-    extractCmd.append('current-test/')
+    extractCmd.append('current-test')
     extractCmd.append(sys.argv[1])
     x = subprocess.Popen(extractCmd)
     x.wait()
 
     errorJsonList = []
-    sources = os.listdir('./current-test/src')
-    exes = os.listdir('./current-test/bins')
-    exesPath = "./current-test/bins/"
     returnPath = os.getcwd()
+    os.chdir("current-test")
+    sources = os.listdir('src')
+    exes = os.listdir('bins')
+    exesPath = "bins"
     os.chdir(exesPath)
     errors = valgrind.runToolGetErrors(exes, sources, errorsToLookFor)
     for err in errors:
