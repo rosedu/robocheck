@@ -11,5 +11,5 @@ import subprocess
 
 class Linux:
     def toolIsInstalled( self, cmd ):
-        print subprocess.call("type " + cmd, shell=True, \
+       return subprocess.call("type " + cmd, shell=True, \
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
