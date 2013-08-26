@@ -22,6 +22,7 @@ def main():
     platformInstance = platformhandler.getInstance()
     if platformInstance is None:
         print "ERROR: Your OS is not supported by Robocheck"
+        return
 
     if "--config" in sys.argv:
         configuration.createConfigFile()

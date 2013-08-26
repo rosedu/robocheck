@@ -17,7 +17,7 @@ import platform
 import sys
 
 def getInstance():
-    platfomInstance = None
+    platformInstance = None
     allSupportedPlatforms = os.listdir("platforms")
     returnPath = os.getcwd()
     os.chdir("platforms")
