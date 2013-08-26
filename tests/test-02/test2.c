@@ -12,6 +12,7 @@ void function(){
 
 
 int main(void){
+    FILE *g = fopen("date.in", "r");
     function();
     return 0;
 }

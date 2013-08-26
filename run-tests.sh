@@ -9,14 +9,13 @@ for current in $tests; do
     current="./tests/$current/*"
     cp $current ./current-test/
     cd ./current-test
-    gcc -g *.c -o robocheck-test
-    
+    make
+
     mkdir src
     mv *.c *.h ./src &> /dev/null
 
     mkdir bins
     mv *.in *.out robocheck-test ./bins &> /dev/null
-    
     zip -r test.zip ./src ./bins &> /dev/null
 
     rm -r ./bins
