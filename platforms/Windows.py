@@ -6,6 +6,7 @@
                  last review 01.09.2013
 """
 import os
+import zipfile
 
 class Windows:
     def toolIsInstalled(self, tool):
