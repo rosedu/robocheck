@@ -13,3 +13,13 @@ class Linux:
     def toolIsInstalled( self, cmd ):
        return subprocess.call("type " + cmd, shell=True, \
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
+    def zipExtractAll(self, archivePath ):
+        extractCmd = []
+        extractCmd.append('unzip')
+        extractCmd.append('-q')
+        extractCmd.append('-d')
+        extractCmd.append('current-test')
+        extractCmd.append(archivePath)
+        x = subprocess.Popen(extractCmd)
+        x.wait()

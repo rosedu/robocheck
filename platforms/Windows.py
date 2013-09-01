@@ -23,3 +23,7 @@ class Windows:
                     return True
 
         return False
+
+    def zipExtractAll(self, archivePath):
+        zipArchive = zipfile.ZipFile(archivePath)
+        zipArchive.extractall("current-test")

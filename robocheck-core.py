@@ -11,10 +11,13 @@ import sys
 import json
 import subprocess
 import time
+import zipfile
+
 from errors import *
 import configuration
 import platformhandler
 import modulehandler
+
 
 def main():
     sys.path.insert(0, "platforms")
@@ -36,14 +39,7 @@ def main():
 
     tool = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
 
-    extractCmd = []
-    extractCmd.append('unzip')
-    extractCmd.append('-q')
-    extractCmd.append('-d')
-    extractCmd.append('current-test')
-    extractCmd.append(sys.argv[1])
-    x = subprocess.Popen(extractCmd)
-    x.wait()
+    platformInstance.zipExtractAll(sys.argv[1])
 
     errorJsonList = []
     returnPath = os.getcwd()
