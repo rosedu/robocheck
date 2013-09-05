@@ -8,11 +8,26 @@
 """
 
 import subprocess
+import getpass
 
 class Linux:
     def toolIsInstalled( self, cmd ):
-       return subprocess.call("type " + cmd, shell=True, \
+        returnCode = subprocess.call("type " + cmd, shell=True, \
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+        if returnCode is True:
+            return True
+
+        bashrc = "/home/" + getpass.getuser() + "/.bashrc"
+        alias = "alias " + cmd
+
+        grep = subprocess.Popen(["grep", alias, bashrc], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        grep.wait()
+        if grep.returncode != 0:
+            return False
+
+        fullCommand = grep.communicate()[0].splitlines()[0].split("=")[1]
+        return self.toolIsInstalled(fullCommand)
+
 
     def zipExtractAll(self, archivePath ):
         extractCmd = []
