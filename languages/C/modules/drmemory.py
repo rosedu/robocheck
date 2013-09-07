@@ -142,6 +142,7 @@ class drmemory:
         fullCommand = platform.getFullCommand("drmemory")
         process.append(fullCommand)
         process.append("-show_reachable")
+        process.append("-batch")
         process.append("--")
 
         for exe in exes:
@@ -152,7 +153,6 @@ class drmemory:
             process.append(exe)
             print process
             x = subprocess.Popen(process, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
-            x.wait()
 
             toolOutput = x.communicate()[1].splitlines()
             errors = self.getErrors(toolOutput, errorList)
