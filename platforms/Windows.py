@@ -3,7 +3,7 @@
      This module contains the Windows class, which implements Windows
     platform specific functions.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                 last review 01.09.2013
+                 last review 07.09.2013
 """
 import os
 import zipfile
@@ -22,6 +22,18 @@ class Windows:
                     print path
                     print fileName
                     return True
+
+        return False
+
+    def getFullCommand(self, cmd):
+        return cmd
+
+    def isExecutable(self, cmd):
+        if len(cmd) < 5:
+            return False
+
+        if cmd[len(cmd)- 3 - 1 :] == '.exe':
+            return True
 
         return False
 

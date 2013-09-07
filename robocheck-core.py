@@ -4,7 +4,7 @@
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 26.08.2013
+                last review 07.09.2013
 """
 import os
 import sys
@@ -37,7 +37,7 @@ def main():
     language = configuration.getLanguage()
     errorsToLookFor = configuration.getErrorsToLookFor()
 
-    tool = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
+    tools = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
 
     platformInstance.zipExtractAll(sys.argv[1])
 
@@ -48,10 +48,16 @@ def main():
     exes = os.listdir('bins')
     exesPath = "bins"
 
+    errorList = []
 
     os.chdir(exesPath)
-    errors = tool[0].runToolGetErrors(exes, sources, errorsToLookFor)
-    for err in errors:
+    for tool in tools:
+        errors = tool.runToolGetErrors(platformInstance, exes, sources, errorsToLookFor)
+        for err in errors:
+            if err not in errorList:
+                errorList.append(err)
+
+    for err in errorList:
         errorJsonList.append( {
             'code': err.code,
             'sourceFile': err.sourceFile,
