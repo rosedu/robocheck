@@ -55,13 +55,14 @@ class drmemory:
             return None
         try:
             fflNotSplited = outputLine.split("# ")[1]
-            sourceFile = fflNotSplited.split('[')[1].split(':')[0].split(os.sep)
-            sourceFile = sourceFile[len(sourceFile) - 1]
+            sourceAndLine = fflNotSplited.split('/')
+            sourceAndLine = sourceAndLine[ len(sourceAndLine) - 1 ]
+            sourceFile = sourceAndLine.split(':')[0]
             if sourceFile not in sources:
                 return None
 
             function = fflNotSplited.split(' ')[1]
-            line = fflNotSplited.split(':')[1].split(']')[0]
+            line = sourceAndLine.split(':')[1].split(']')[0]
         except IndexError:
             return None
 
