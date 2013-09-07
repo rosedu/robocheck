@@ -55,7 +55,7 @@ class drmemory:
             return None
         try:
             fflNotSplited = outputLine.split("# ")[1]
-            sourceFile = fflNotSplited.split('[')[1].split(':')[0].split('/')
+            sourceFile = fflNotSplited.split('[')[1].split(':')[0].split(os.sep)
             sourceFile = sourceFile[len(sourceFile) - 1]
             if sourceFile not in sources:
                 return None
@@ -145,7 +145,7 @@ class drmemory:
         process.append("--")
 
         for exe in exes:
-            exe = "./" + exe
+            exe = "."+ os.sep + exe
             if platform.isExecutable(exe) is False:
                 continue
 
