@@ -10,7 +10,8 @@
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                 last review 26.08.2013
 """
-
+import os
+import stat
 import subprocess
 from errors import *
 compatibleErrors = [ "MEMORY LEAK",
@@ -36,6 +37,8 @@ class valgrind:
 
 
     def getFileFunctionLine(self, outputLine ):
+        global sources
+
         details = []
         if ": " not in outputLine:
             return None
@@ -79,7 +82,7 @@ class valgrind:
                 "MEMORY LEAK" in errorsToLookFor :
 
                 for j in range(i+1, nrLinesOutput):
-                    ffl = self.getFileFunctionLine(toolOutput[j]) 
+                    ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
                         break
@@ -133,7 +136,7 @@ class valgrind:
         return errorList
 
 
-    def runToolGetErrors(self, exes, sourceFiles, errorList):
+    def runToolGetErrors(self, platform, exes, sourceFiles, errorList):
         global sources
         global compatibleErrors
 
@@ -144,7 +147,7 @@ class valgrind:
         process.append('--track-origins=yes')
         process.append('--track-fds=yes')
 
-        errorJsonList = []
+        errors = []
         for exe in exes:
             exe = "./" + exe
             process.append(exe)
@@ -156,5 +159,5 @@ class valgrind:
                 continue
             toolOutput = x.communicate()[1].splitlines()
             errors = self.getErrors(toolOutput, errorList)
-        return errors
 
+        return errors
