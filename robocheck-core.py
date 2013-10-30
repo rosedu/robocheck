@@ -4,7 +4,7 @@
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 07.09.2013
+                last review 30.10.2013
 """
 import os
 import sys
@@ -17,7 +17,7 @@ from errors import *
 import configuration
 import platformhandler
 import modulehandler
-
+import penaltyhandler
 
 def main():
     sys.path.insert(0, "platforms")
@@ -35,7 +35,15 @@ def main():
         return
 
     language = configuration.getLanguage()
-    errorsToLookFor = configuration.getErrorsToLookFor()
+    penaltyFlag = configuration.getPenaltyFlag()
+
+    if penaltyFlag is True:
+        penaltyDictionary = configuration.getPenaltyDictionary()
+        errorsToLookFor = penaltyhandler.getErrorsToLookFor(penaltyDictionary)
+    else:
+        errorsToLookFor = configuration.getErrorsToLookFor()
+
+
 
     tools = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
 

@@ -1,102 +1,21 @@
-"""Config.py
+"""configuration.py
 
     General description:
      This is the module that handles the configurations for Robocheck. It 
     parses and helps the user generate the config.json.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                 last review 13.08.2013
+                 last review 30.10.2013
 """
 
 import json
 import sys
 import os
+import penaltyhandler
 
 language = []
 errorsToLookFor = []
+penaltyFlag = []
 
-def confirmPenaltyConfigurations( penaltyDictionary ):
-    os.system('clear')
-    print 'Error Type',
-    for i in range(15):
-        print ' ',
-    print 'Mode[S/M] ',
-    print 'Occurences ',
-    print 'Penalty'
-    print ''
-
-    for error in penaltyDictionary:
-        print error,
-        for i in range( (45-len(error))/2 ):
-            print ' ',
-        if penaltyDictionary[error][0] is None:
-            print 'S',
-            for i in range(4):
-                print ' ',
-            print ' ',
-        else:
-            print 'M',
-            for i in range(4):
-                print ' ',
-            print penaltyDictionary[error][0],
-
-        for i in range(4):
-            print ' ',
-        print penaltyDictionary[error][1]
-
-    print '\nIs this configuration correct? [Y/n]',
-    option = sys.stdin.readline().splitlines()[0]
-    if option != 'N' and option != 'n':
-        return True
-    else:
-        return False
-
-def penaltyConfig( errorsToLookFor ):
-    penaltyDictionary = dict()
-    os.system('clear')
-    for error in errorsToLookFor:
-        print error
-        while True:
-            print "\tMode[S/M]:  ",
-            mode = sys.stdin.readline().splitlines()[0].upper()
-            if mode != "S" and mode != "M":
-                print "Invalid option!"
-            else:
-                break
-
-        if mode == "M":
-            while True:
-                print "\tOccurences: ",
-                occurence = sys.stdin.readline().splitlines()[0]
-                if occurence.isdigit():
-                    occurence = int(occurence)
-                    if occurence <= 0:
-                        print "Invalid option! Need a number > 0."
-                    else:
-                        break
-                else:
-                    print "Invalid option! Need a number."
-        else:
-            occurence = None
-
-
-        while True:
-            print "\tPenalty:    ",
-            penalty = sys.stdin.readline().splitlines()[0]
-            try:
-                penalty = float(penalty)
-                if penalty < 0:
-                    print "Invalid option! Need a float >= 0."
-                else :
-                    break
-            except ValueError:
-                print "Invalid option! Need a float number."
-        penaltyDictionary[error] = [occurence, penalty]
-        print ''
-
-    if confirmPenaltyConfigurations( penaltyDictionary) is True:
-        return penaltyDictionary
-    else:
-        return penaltyConfig( errorsToLookFor )
 
 
 def createConfigFile():
@@ -171,7 +90,7 @@ def createConfigFile():
             penalty = False
         else:
             penalty = True
-            toLookFor = penaltyConfig( toLookFor )
+            toLookFor = penaltyhandler.penaltyConfig( toLookFor )
 
         config = open('config.json', 'w')
         jsonList = []
@@ -183,6 +102,7 @@ def createConfigFile():
 def readConfigFile():
     global language
     global errorsToLookFor
+    global penaltyFlag
 
     try:
         configFile = open('config.json', 'r')
@@ -194,6 +114,7 @@ def readConfigFile():
     config =json.load(configFile)
     language = config[0]['Language']
     errorsToLookFor = config[0]['Errors']
+    penaltyFlag = config[0]['Penalty']
     return True
 
 def getLanguage():
@@ -201,5 +122,12 @@ def getLanguage():
     return language
 
 def getErrorsToLookFor():
+    global errorsToLookFor
+    return errorsToLookFor
+
+def getPenaltyFlag():
+    global penaltyFlag
+    return penaltyFlag
+def getPenaltyDictionary():
     global errorsToLookFor
     return errorsToLookFor
