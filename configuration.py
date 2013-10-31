@@ -78,7 +78,7 @@ def createConfigFile():
             print "[ ]",
         print error
 
-    
+
     print "\nIs this configuration correct? [Y/n]:"
     option = sys.stdin.readline().splitlines()[0]
     if option is "N" or option is "n":

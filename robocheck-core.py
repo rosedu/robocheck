@@ -64,14 +64,18 @@ def main():
         for err in errors:
             if err not in errorList:
                 errorList.append(err)
+    if penaltyFlag is True:
+        errorJsonList = penaltyhandler.applyPenaltiesGetJson(errorList, penaltyDictionary)
+    else:
+        for err in errorList:
+            errorJsonList.append( {
+                'code': err.code,
+                'sourceFile': err.sourceFile,
+                'function': err.function,
+                'line': err.line,
+                })
+        errorJsonList = dict([("ErrorsFound",errorJsonList)])
 
-    for err in errorList:
-        errorJsonList.append( {
-            'code': err.code,
-            'sourceFile': err.sourceFile,
-            'function': err.function,
-            'line': err.line,
-            })
     print json.dumps(errorJsonList, indent=2)
     os.chdir(returnPath)
 

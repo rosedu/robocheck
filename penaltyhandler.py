@@ -26,9 +26,8 @@ def confirmPenaltyConfigurations( penaltyDictionary ):
         for i in range( (45-len(error))/2 ):
             print ' ',
         penaltyConfig = penaltyDictionary[error]
-        mode = penaltyConfig[0]
-        occurence = penaltyConfig[1]
-        penalty = penaltyConfig[2]
+        mode = penaltyConfig["Mode"]
+        penalty = penaltyConfig["Penalty"]
         if mode == 'S' :
             print 'S',
             for i in range(4):
@@ -36,6 +35,7 @@ def confirmPenaltyConfigurations( penaltyDictionary ):
             print ' ',
         else:
             print 'M',
+            occurence = penaltyConfig["Occurences"]
             for i in range(4):
                 print ' ',
             print occurence,
@@ -91,7 +91,13 @@ def penaltyConfig( errorsToLookFor ):
                     break
             except ValueError:
                 print "Invalid option! Need a float number."
-        penaltyDictionary[error] = [mode, occurence, penalty]
+        if mode == 'S':
+            penaltyDictionary[error] = dict([("Mode", mode), \
+                                        ("Penalty", penalty)])
+        else:
+            penaltyDictionary[error] = dict([("Mode", mode), \
+                                        ("Occurences", occurence), \
+                                        ("Penalty", penalty)])
         print ''
 
     if confirmPenaltyConfigurations( penaltyDictionary) is True:
@@ -106,3 +112,46 @@ def getErrorsToLookFor(penaltyDictionary):
         errorsToLookFor.append(error)
 
     return errorsToLookFor
+
+def applyPenaltiesGetJson(errorsFound, penaltyDictionary):
+    multiplePenalties = dict()
+    errorJsonList = []
+    for error in errorsFound:
+        if penaltyDictionary[error.code]["Mode"] == "S":
+            errorJsonList.append( {
+                'code': error.code,
+                'sourceFile': error.sourceFile,
+                'function': error.function,
+                'line': error.line,
+                'penalty': penaltyDictionary[error.code]["Penalty"]
+                })
+        else :
+            errorJsonList.append( {
+                'code': error.code,
+                'sourceFile': error.sourceFile,
+                'function': error.function,
+                'line': error.line,
+                'penalty': 0.0
+                })
+            if error.code not in multiplePenalties:
+                multiplePenalties[error.code] = 1
+            else :
+                multiplePenalties[error.code] += 1
+
+    otherPenaltiesList = []
+    for error in multiplePenalties:
+        penalty = 0.0
+        if multiplePenalties[error] > penaltyDictionary[error]["Occurences"]:
+            penalty = penaltyDictionary[error]["Penalty"]
+        otherPenaltiesList.append( {
+                'code': error,
+                'accepted': penaltyDictionary[error]["Occurences"],
+                'found': multiplePenalties[error],
+                'penalty': penalty
+                })
+
+    finalOutputJson = dict([("ErrorsFound", errorJsonList), ("OtherPenalties", otherPenaltiesList)]) 
+    return finalOutputJson
+
+
+
