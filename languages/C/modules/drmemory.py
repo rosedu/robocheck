@@ -14,7 +14,7 @@
 import os
 import stat
 import subprocess
-from errors import *
+from coreutils.errors import *
 
 compatibleErrors = ["MEMORY LEAK",
     "INVALID ACCESS",

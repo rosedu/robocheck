@@ -13,11 +13,11 @@ import subprocess
 import time
 import zipfile
 
-from errors import *
-import configuration
-import platformhandler
-import modulehandler
-import penaltyhandler
+from coreutils.errors import *
+from coreutils import configuration
+from coreutils import platformhandler
+from coreutils import modulehandler
+from coreutils import penaltyhandler
 
 def main():
     sys.path.insert(0, "platforms")

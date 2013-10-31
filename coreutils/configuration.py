@@ -10,7 +10,7 @@
 import json
 import sys
 import os
-import penaltyhandler
+from coreutils import penaltyhandler
 
 language = []
 errorsToLookFor = []
