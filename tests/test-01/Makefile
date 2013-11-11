@@ -1,2 +1,2 @@
 build:
-	gcc -g test01.c -o robocheck-test
+	gcc test01.c -o robocheck-test -g

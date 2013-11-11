@@ -11,6 +11,8 @@ void function(char *something){
 int main(void) {
     FILE *f = fopen("date2.in", "r");
     int a=0;
+    int c;
+    printf("%d\n", c);
     int b[10];
     int* x = malloc(4 * sizeof(int));
     free(x);

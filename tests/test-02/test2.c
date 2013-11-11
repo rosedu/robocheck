@@ -13,6 +13,9 @@ void function(){
 
 int main(void){
     FILE *g = fopen("date.in", "r");
+    int *x = malloc(4* sizeof(int));
+    free(x);
+    free(x);
     function();
     return 0;
 }
