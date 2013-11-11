@@ -7,11 +7,15 @@
 """
 import os
 import zipfile
+import subprocess
 
 class Windows:
     def toolIsInstalled(self, tool):
         for path in os.environ["PATH"].split(os.pathsep):
-            filesInPath = os.listdir(path)
+            try:
+                filesInPath = os.listdir(path)
+            except WindowsError:
+                continue
             for fileName in filesInPath:
                 """not sure yet
                 if tool in fileName and ".exe" in fileName
@@ -19,8 +23,6 @@ class Windows:
                 """
                 if tool + ".exe" == fileName \
                     or tool + ".EXE" == fileName:
-                    print path
-                    print fileName
                     return True
 
         return False
@@ -38,15 +40,17 @@ class Windows:
         return False
 
     def getTempPath(self):
-        temp = os.system("echo %TEMP%").split(";")[0] + os.sep
+        proc = subprocess.Popen(['echo', '%TEMP%'], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        proc.wait()
+        temp = proc.communicate()[0].splitlines()[0].split(";")[0] + os.sep
         return temp
 
     def zipExtractAll(self, archivePath):
-        temp = getTempPath()
+        temp = self.getTempPath()
         zipArchive = zipfile.ZipFile(archivePath)
         zipArchive.extractall(temp + "current-robocheck-test")
 
 
     def cdToTemp(self):
-        temp = getTempPath()
+        temp = self.getTempPath()
         os.chdir(temp)
