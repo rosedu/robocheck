@@ -22,7 +22,7 @@ compatibleErrors = [ "MEMORY LEAK",
 
 sources = []
 class valgrind:
-
+    distinctiveSign = ''
     @staticmethod
     def toolIsInstalled( platform ):
         return platform.toolIsInstalled("valgrind")
@@ -46,15 +46,17 @@ class valgrind:
             return None
         if "exit" in outputLine:
             return None
+        try:
+            fflNotSplited = outputLine.split(": ")[1]
 
-        fflNotSplited = outputLine.split(": ")[1]
+            sourceFile = fflNotSplited.split(" (")[1].split(":")[0]
+            if sourceFile not in sources:
+                return None
 
-        sourceFile = fflNotSplited.split(" (")[1].split(":")[0]
-        if sourceFile not in sources:
+            function = fflNotSplited.split(" (")[0]
+            line = fflNotSplited.split(":")[1].split(")")[0]
+        except IndexError:
             return None
-
-        function = fflNotSplited.split(" (")[0]
-        line = fflNotSplited.split(":")[1].split(")")[0]
 
         details.append(sourceFile)
         details.append(function)
@@ -69,19 +71,21 @@ class valgrind:
                 errorsToLookFor.append( error )
         return errorsToLookFor
 
-
     def getErrors(self, toolOutput, errorsToLookFor):
         errorList = []
         nrLinesOutput = len(toolOutput)
 
         errorsToLookFor = self.getCompatibleErrorsToLookFor( errorsToLookFor )
-        print errorsToLookFor
         for i in range( nrLinesOutput ):
+            if self.distinctiveSign not in toolOutput[i]:
+                continue
             error = None
             if "bytes in" and "are definitely lost in loss record" in toolOutput[i] and \
                 "MEMORY LEAK" in errorsToLookFor :
 
                 for j in range(i+1, nrLinesOutput):
+                    if toolOutput[j] == self.distinctiveSign:
+                        break
                     ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("MEMORY LEAK", ffl[0], ffl[1], ffl[2])
@@ -94,6 +98,8 @@ class valgrind:
                 "INVALID ACCESS" in errorsToLookFor :
 
                 for j in range(i+1, nrLinesOutput):
+                    if toolOutput[j] == self.distinctiveSign:
+                        break
                     ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("INVALID ACCESS", ffl[0], ffl[1], ffl[2])
@@ -104,6 +110,8 @@ class valgrind:
                 "UNITIALIZED VARIABLE USAGE" in errorsToLookFor:
 
                 for j in range(i+1, nrLinesOutput):
+                    if toolOutput[j] == self.distinctiveSign:
+                        break
                     ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("UNITIALIZED VARIABLE USAGE", ffl[0], ffl[1], ffl[2])
@@ -114,6 +122,8 @@ class valgrind:
                 "INVALID FREE" in errorsToLookFor :
 
                 for j in range(i+1, nrLinesOutput):
+                    if toolOutput[j] == self.distinctiveSign:
+                        break
                     ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("INVALID FREE", ffl[0], ffl[1], ffl[2])
@@ -125,6 +135,8 @@ class valgrind:
                 "OPENED, BUT NOT CLOSED FILE DESCRIPTOR" in errorsToLookFor :
 
                 for j in range(i+1, nrLinesOutput):
+                    if toolOutput[j] == self.distinctiveSign:
+                        break
                     ffl = self.getFileFunctionLine(toolOutput[j])
                     if ffl is not None:
                         error = Error("OPENED, BUT NOT CLOSED FILE DESCRIPTOR", ffl[0], ffl[1], ffl[2])
@@ -136,10 +148,13 @@ class valgrind:
         return errorList
 
 
-    def runToolGetErrors(self, platform, exes, sourceFiles, errorList):
+    def runToolGetErrors(self, platform, exes, sourceFiles, exesPath, srcsPath ,errorList):
         global sources
         global compatibleErrors
 
+        returnPath = os.getcwd()
+
+        os.chdir(exesPath)
         sources = sourceFiles
         process = []
         process.append('valgrind')
@@ -150,14 +165,18 @@ class valgrind:
         errors = []
         for exe in exes:
             exe = "./" + exe
+            if platform.isExecutable(exe) is False:
+                continue
             process.append(exe)
-            print process
+
             x = subprocess.Popen(process, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             x.wait()
+            self.disctinctiveSign = '==' + str(x.pid) + '=='
             process.remove(exe)
+
             if x.returncode != 0:
                 continue
             toolOutput = x.communicate()[1].splitlines()
             errors = self.getErrors(toolOutput, errorList)
-
+        os.chdir(returnPath)
         return errors

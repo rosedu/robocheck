@@ -12,6 +12,7 @@ import json
 import subprocess
 import time
 import zipfile
+import shutil
 
 from coreutils.errors import *
 from coreutils import configuration
@@ -19,9 +20,38 @@ from coreutils import platformhandler
 from coreutils import modulehandler
 from coreutils import penaltyhandler
 
+def init(pathToRobocheck):
+    if os.sep in pathToRobocheck:
+        path = pathToRobocheck[0]
+        pathToRobocheck=pathToRobocheck[1:]
+        if(pathToRobocheck[0] == os.sep):
+            path += pathToRobocheck[0]
+            pathToRobocheck=pathToRobocheck[1:]
+
+        dirList = pathToRobocheck.split(os.sep)
+        for i in range(len(dirList) -1):
+            path += dirList[i] + os.sep
+
+        os.chdir(path)
+
+def cleanUp(platformInstance):
+    if "current-robocheck-test" in os.listdir( platformInstance.getTempPath() ):
+        shutil.rmtree(platformInstance.getTempPath() + "current-robocheck-test")
+
+def getRemainingErrors(errorsToLookFor, errorsFound):
+    for error in errorsFound:
+        if error.code in errorsToLookFor:
+            errorsToLookFor.remove(error.code)
+    return errorsToLookFor
+
+
 def main():
+    callerPath = os.getcwd()
+
+    init(sys.argv[0])
     sys.path.insert(0, "platforms")
     sys.path.insert(0, os.getcwd())
+    returnPath = os.getcwd()
     platformInstance = platformhandler.getInstance()
     if platformInstance is None:
         print "ERROR: Your OS is not supported by Robocheck"
@@ -30,6 +60,7 @@ def main():
     if "--config" in sys.argv:
         configuration.createConfigFile()
         return
+    cleanUp(platformInstance)
     couldRead = configuration.readConfigFile()
     if couldRead is False:
         return
@@ -47,20 +78,25 @@ def main():
 
     tools = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
 
+    os.mkdir(platformInstance.getTempPath() + "current-robocheck-test")
+    os.chdir(callerPath)
     platformInstance.zipExtractAll(sys.argv[1])
 
+
+    platformInstance.cdToTemp()
     errorJsonList = []
-    returnPath = os.getcwd()
-    os.chdir("current-test")
+    os.chdir("current-robocheck-test")
     sources = os.listdir('src')
     exes = os.listdir('bins')
     exesPath = "bins"
+    srcsPath = 'src'
 
     errorList = []
 
-    os.chdir(exesPath)
     for tool in tools:
-        errors = tool.runToolGetErrors(platformInstance, exes, sources, errorsToLookFor)
+        errors = tool.runToolGetErrors(platformInstance, exes, sources, exesPath, srcsPath, errorsToLookFor)
+        errorsToLookFor = getRemainingErrors(errorsToLookFor, errors)
+
         for err in errors:
             if err not in errorList:
                 errorList.append(err)
@@ -77,12 +113,14 @@ def main():
         errorJsonList = dict([("ErrorsFound",errorJsonList)])
 
     print json.dumps(errorJsonList, indent=2)
-    os.chdir(returnPath)
 
-    jsonOutput = open('output.json', 'w')
+
+    os.chdir(callerPath)
+    jsonOutput = open('robocheck-output.json', 'w')
     jsonOutput.write(json.dumps(errorJsonList, indent=2))
     jsonOutput.close()
 
+    cleanUp(platformInstance)
 
 if __name__ == '__main__':
    main()

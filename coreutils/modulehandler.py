@@ -18,6 +18,7 @@ def getCompatibleModules(language, errorsToLookFor, platform):
     os.chdir("languages")
     os.chdir(language)
     allModules = os.listdir("modules")
+    allModules.sort()
     os.chdir("modules")
     sys.path.insert(0, ".")
 

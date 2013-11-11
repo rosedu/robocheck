@@ -97,6 +97,8 @@ def createConfigFile():
         jsonList.append( { 'Language': language, 'Errors': toLookFor, 'Penalty' : penalty } )
         config.write(json.dumps(jsonList, indent=2))
         config.close()
+
+        print "\nRobocheck was succefully configured!"
         return True
 
 def readConfigFile():

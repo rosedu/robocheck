@@ -37,6 +37,16 @@ class Windows:
 
         return False
 
+    def getTempPath(self):
+        temp = os.system("echo %TEMP%").split(";")[0] + os.sep
+        return temp
+
     def zipExtractAll(self, archivePath):
+        temp = getTempPath()
         zipArchive = zipfile.ZipFile(archivePath)
-        zipArchive.extractall("current-test")
+        zipArchive.extractall(temp + "current-robocheck-test")
+
+
+    def cdToTemp(self):
+        temp = getTempPath()
+        os.chdir(temp)

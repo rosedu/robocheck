@@ -53,7 +53,13 @@ class Linux:
         extractCmd.append('unzip')
         extractCmd.append('-q')
         extractCmd.append('-d')
-        extractCmd.append('current-test')
+        extractCmd.append('/tmp/current-robocheck-test')
         extractCmd.append(archivePath)
         x = subprocess.Popen(extractCmd)
         x.wait()
+
+    def getTempPath(self):
+        return "/tmp/"
+
+    def cdToTemp(self):
+        os.chdir("/tmp")
