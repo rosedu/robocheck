@@ -4,7 +4,7 @@
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 30.10.2013
+                last review 17.11.2013
 """
 import os
 import sys
@@ -44,6 +44,10 @@ def getRemainingErrors(errorsToLookFor, errorsFound):
             errorsToLookFor.remove(error.code)
     return errorsToLookFor
 
+def helpMessage():
+    print "Usage:"
+    print "\t robocheck --config             - for configuring Robocheck"
+    print "\t robocheck /path/to/ZipArchive  - for running Robocheck"
 
 def main():
     callerPath = os.getcwd()
@@ -56,6 +60,10 @@ def main():
     if platformInstance is None:
         print "ERROR: Your OS is not supported by Robocheck"
         return
+
+    if len(sys.argv) != 2 or "--help" in sys.argv:
+        helpMessage()
+        exit()
 
     if "--config" in sys.argv:
         configuration.createConfigFile()
