@@ -8,10 +8,10 @@ How to
 
 1 Install Robocheck
  1.1 Linux instalation
-   First of all run git clone TODO
+   First of all run git clone git@github.com:rosedu/robocheck.git
 
    1.1.1 Using the instaltion script
-    After you've donwloaded Robocheck's files just run the 
+    After you've donwloaded Robocheck's files just run the
    install-robocheck-linux.sh directly from the folder.
    From now on you can run Robocheck just by using the command robocheck.
 
@@ -66,10 +66,10 @@ How to
     python /path/to/robocheck-core.py --config
 
 3 Run Robocheck
-    IMPORTANT!!! Never run Robocheck through a symbolic link!
+        IMPORTANT!!! Never run Robocheck through a symbolic link!
     Use either an alias or the full command.
 
-    Robocheck receives an zip archive that must have a predefined structure!
+    Robocheck receives a zip archive that must have a predefined structure!
 
     3.1 Zip Archive's structure
      The archive must in have in the root two folders "src" and "bins". In
