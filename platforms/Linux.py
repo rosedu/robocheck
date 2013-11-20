@@ -4,12 +4,13 @@
      This module contains the Linux class, which implements Linux
     platform specific functions.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                   last review 07.09.2013
+                   last review 20.11.2013
 """
 
 import subprocess
 import getpass
 import os
+import zipfile
 
 class Linux:
     def toolIsInstalled( self, cmd ):
@@ -55,8 +56,10 @@ class Linux:
         extractCmd.append('-d')
         extractCmd.append('/tmp/current-robocheck-test')
         extractCmd.append(archivePath)
-        x = subprocess.Popen(extractCmd)
+        x = subprocess.Popen(extractCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         x.wait()
+        if x.returncode != 0:
+            raise zipfile.BadZipfile()
 
     def getTempPath(self):
         return "/tmp/"

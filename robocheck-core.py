@@ -4,7 +4,7 @@
     This is the core of the program. It loads the modules, runs them, 
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 17.11.2013
+                last review 20.11.2013
 """
 import os
 import sys
@@ -88,14 +88,23 @@ def main():
 
     os.mkdir(platformInstance.getTempPath() + "current-robocheck-test")
     os.chdir(callerPath)
-    platformInstance.zipExtractAll(sys.argv[1])
-
+    try:
+        platformInstance.zipExtractAll(sys.argv[1])
+    except zipfile.BadZipfile:
+        print "ERROR: Archive was not Zip format or it was corrupted!"
+        exit() 
 
     platformInstance.cdToTemp()
     errorJsonList = []
     os.chdir("current-robocheck-test")
-    sources = os.listdir('src')
-    exes = os.listdir('bins')
+    try:
+        sources = os.listdir('src')
+        exes = os.listdir('bins')
+    except OSError:
+        print "ERROR: Archive did not have the expected folders!"
+        cleanUp(platformInstance)
+        exit()
+
     exesPath = "bins"
     srcsPath = 'src'
 
