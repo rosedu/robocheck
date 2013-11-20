@@ -90,7 +90,7 @@ def main():
     os.chdir(callerPath)
     try:
         platformInstance.zipExtractAll(sys.argv[1])
-    except zipfile.BadZipfile:
+    except Exception:
         print "ERROR: Archive was not Zip format or it was corrupted!"
         exit() 
 
@@ -100,7 +100,7 @@ def main():
     try:
         sources = os.listdir('src')
         exes = os.listdir('bins')
-    except OSError:
+    except Exception:
         print "ERROR: Archive did not have the expected folders!"
         cleanUp(platformInstance)
         exit()
