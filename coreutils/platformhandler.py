@@ -22,7 +22,7 @@ def getInstance():
     returnPath = os.getcwd()
     os.chdir("platforms")
     sys.path.insert(0, ".")
-    for i in range(1, len(allSupportedPlatforms)):
+    for i in range(0, len(allSupportedPlatforms)):
         allSupportedPlatforms[i] = allSupportedPlatforms[i].split(".py")[0]
 
     for platformName in allSupportedPlatforms:

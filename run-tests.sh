@@ -1,15 +1,13 @@
 #! /bin/bash
 
-starting_path=$(pwd)
-
 tests=$(ls -1 ./tests)
 mkdir current-test
 for current in $tests; do
     echo $current
     current="./tests/$current/*"
     cp $current ./current-test/
-    cd ./current-test
-    make
+    pushd ./current-test &> /dev/null
+    make &> /dev/null
 
     mkdir src
     mv *.c *.h ./src &> /dev/null
@@ -21,7 +19,7 @@ for current in $tests; do
     rm -r ./bins
     rm -r ./src
 
-    cd $starting_path
+    popd &> /dev/null
     python robocheck-core.py ./current-test/test.zip
     rm -r ./current-test/*
 done
