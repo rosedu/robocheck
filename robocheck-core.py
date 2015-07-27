@@ -1,7 +1,7 @@
 """robocheck-core.py
 
    General description:
-    This is the core of the program. It loads the modules, runs them, 
+    This is the core of the program. It loads the modules, runs them,
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                 last review 20.11.2013
@@ -65,11 +65,12 @@ def main():
         helpMessage()
         exit()
 
+    configFilePath = os.path.abspath('config.json')
     if "--config" in sys.argv:
-        configuration.createConfigFile()
+        configuration.createConfigFile(configFilePath)
         return
     cleanUp(platformInstance)
-    couldRead = configuration.readConfigFile()
+    couldRead = configuration.readConfigFile(configFilePath)
     if couldRead is False:
         return
 
@@ -92,7 +93,7 @@ def main():
         platformInstance.zipExtractAll(sys.argv[1])
     except Exception:
         print "ERROR: Archive was not Zip format or it was corrupted!"
-        exit() 
+        exit()
 
     platformInstance.cdToTemp()
     errorJsonList = []

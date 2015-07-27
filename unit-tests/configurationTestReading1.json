@@ -1,0 +1,11 @@
+[
+  {
+    "Penalty": false, 
+    "Errors": [
+      "MEMORY LEAK", 
+      "INVALID ACCESS", 
+      "INVALID FREE"
+    ], 
+    "Language": "C"
+  }
+]
