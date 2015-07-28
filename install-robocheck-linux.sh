@@ -15,6 +15,13 @@ echo "Installing python..."
   apt-get install python
 
 echo
+echo "Installing python-pip..."
+  apt-get install python-pip
+echo
+echo "Installing mock python library..."
+  pip install -U mock
+
+echo
 echo "Installing DrMemory..."
   if drmemory -version &> /dev/null; then
     echo 'Ok!'

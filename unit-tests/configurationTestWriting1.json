@@ -1,0 +1,12 @@
+[
+  {
+    "Penalty": false, 
+    "Errors": [
+      "MEMORY LEAK", 
+      "INVALID ACCESS", 
+      "INVALID FREE", 
+      "OPENED, BUT NOT CLOSED FILE DESCRIPTOR"
+    ], 
+    "Language": "C"
+  }
+]

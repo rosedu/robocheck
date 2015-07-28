@@ -1,7 +1,7 @@
 """configuration.py
 
     General description:
-     This is the module that handles the configurations for Robocheck. It 
+     This is the module that handles the configurations for Robocheck. It
     parses and helps the user generate the config.json.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
                  last review 30.10.2013
@@ -16,9 +16,7 @@ language = []
 errorsToLookFor = []
 penaltyFlag = []
 
-
-
-def createConfigFile():
+def createConfigFile(filepath):
     os.system('clear')
     returnPath = os.getcwd()
     languages = os.listdir('languages')
@@ -92,7 +90,7 @@ def createConfigFile():
             penalty = True
             toLookFor = penaltyhandler.penaltyConfig( toLookFor )
 
-        config = open('config.json', 'w')
+        config = open(filepath, 'w')
         jsonList = []
         jsonList.append( { 'Language': language, 'Errors': toLookFor, 'Penalty' : penalty } )
         config.write(json.dumps(jsonList, indent=2))
@@ -101,13 +99,13 @@ def createConfigFile():
         print "\nRobocheck was succefully configured!"
         return True
 
-def readConfigFile():
+def readConfigFile(filepath):
     global language
     global errorsToLookFor
     global penaltyFlag
 
     try:
-        configFile = open('config.json', 'r')
+        configFile = open(filepath, 'r')
     except IOError as e:
         print "ERROR: Robocheck is not configured!"
         print "Please run robocheck-core.py --config to configure it!"
@@ -130,6 +128,7 @@ def getErrorsToLookFor():
 def getPenaltyFlag():
     global penaltyFlag
     return penaltyFlag
+
 def getPenaltyDictionary():
     global errorsToLookFor
     return errorsToLookFor
