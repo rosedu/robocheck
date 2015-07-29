@@ -1,0 +1,25 @@
+[
+  {
+    "Penalty": true, 
+    "Errors": {
+      "UNITIALIZED VARIABLE USAGE": {
+        "Penalty": 3.0, 
+        "Mode": "S"
+      }, 
+      "INVALID ACCESS": {
+        "Penalty": 4.3, 
+        "Mode": "S"
+      }, 
+      "MEMORY LEAK": {
+        "Penalty": 5.01, 
+        "Mode": "S"
+      }, 
+      "OPENED, BUT NOT CLOSED FILE DESCRIPTOR": {
+        "Penalty": 3.99, 
+        "Mode": "M", 
+        "Occurences": 2
+      }
+    }, 
+    "Language": "C"
+  }
+]

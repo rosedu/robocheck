@@ -4,7 +4,8 @@
     This is the core of the program. It loads the modules, runs them,
    receives a list of errors from each module and creates a json
    (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                last review 20.11.2013
+   (C) 2015, Constantin Mihalache <mihalache.c94@gmail.com>
+                last review 29.07.2015
 """
 import os
 import sys
@@ -18,7 +19,6 @@ from coreutils.errors import *
 from coreutils import configuration
 from coreutils import platformhandler
 from coreutils import modulehandler
-from coreutils import penaltyhandler
 
 def init(pathToRobocheck):
     if os.sep in pathToRobocheck:
@@ -75,15 +75,7 @@ def main():
         return
 
     language = configuration.getLanguage()
-    penaltyFlag = configuration.getPenaltyFlag()
-
-    if penaltyFlag is True:
-        penaltyDictionary = configuration.getPenaltyDictionary()
-        errorsToLookFor = penaltyhandler.getErrorsToLookFor(penaltyDictionary)
-    else:
-        errorsToLookFor = configuration.getErrorsToLookFor()
-
-
+    errorsToLookFor = configuration.getErrorsToLookFor()
 
     tools = modulehandler.getCompatibleModules(language, errorsToLookFor, platformInstance)
 
@@ -118,20 +110,11 @@ def main():
         for err in errors:
             if err not in errorList:
                 errorList.append(err)
-    if penaltyFlag is True:
-        errorJsonList = penaltyhandler.applyPenaltiesGetJson(errorList, penaltyDictionary)
-    else:
-        for err in errorList:
-            errorJsonList.append( {
-                'code': err.code,
-                'sourceFile': err.sourceFile,
-                'function': err.function,
-                'line': err.line,
-                })
-        errorJsonList = dict([("ErrorsFound",errorJsonList)])
+
+    errorJsonList = configuration.getJson(errorList)
+    errorJsonList = dict([("ErrorsFound",errorJsonList)])
 
     print json.dumps(errorJsonList, indent=2)
-
 
     os.chdir(callerPath)
     jsonOutput = open('robocheck-output.json', 'w')

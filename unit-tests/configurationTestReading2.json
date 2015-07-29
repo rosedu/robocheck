@@ -1,0 +1,24 @@
+[
+  {
+    "Penalty": true,
+    "Errors": {
+      "UNITIALIZED VARIABLE USAGE": {
+        "Penalty": 7.0, 
+        "Mode": "S"
+      },
+      "INVALID ACCESS": {
+        "Penalty": 6.0,
+        "Mode": "S"
+      },
+      "MEMORY LEAK": {
+        "Penalty": 5.0,
+        "Mode": "S"
+      },
+      "INVALID FREE": {
+        "Penalty": 8.0,
+        "Mode": "S"
+      }
+    },
+    "Language": "C"
+  }
+]
