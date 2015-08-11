@@ -1,9 +1,9 @@
 """ drmemory.py
 
     General description:
-     This is a module that checks for errors using  Dr Memory tool for programs 
-    that are written in C. Compatible errors: Memory leak, Invalid access, 
-    Invalid free, Unitialized variable usage, Open, but not closed 
+     This is a module that checks for errors using  Dr Memory tool for programs
+    that are written in C. Compatible errors: Memory leak, Invalid access,
+    Invalid free, Unitialized variable usage, Open, but not closed
     file descriptor. The function runToolGetErrors returns a list of
     instances of Error class, defined in Errors.py
 
@@ -27,7 +27,8 @@ sources = []
 class drmemory:
     @staticmethod
     def toolIsInstalled(platform):
-        return platform.toolIsInstalled("drmemory")
+        return platform.toolIsInstalled("drmemory")\
+            and platform.getArchitecture() == "32bit"
 
     @staticmethod
     def canHandleErrors(errorList):
@@ -43,7 +44,6 @@ class drmemory:
         for error in errorList:
             if error in compatibleErrors:
                 errorsToLookFor.append(error)
-
         return errorsToLookFor
 
     def getFileFunctionLine(self, outputLine):
@@ -145,6 +145,7 @@ class drmemory:
 
     def runToolGetErrors(self, platform, exes, sourceFiles, exesPath, srcsPath ,errorList):
         global sources
+        errors = []
         sources = sourceFiles
         returnPath = os.getcwd()
 
@@ -170,4 +171,3 @@ class drmemory:
 
         os.chdir(returnPath)
         return errors
-
