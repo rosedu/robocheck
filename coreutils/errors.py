@@ -36,3 +36,18 @@ class Error:
             if result is NotImplemented:
                 return result
             return not result
+
+    @staticmethod
+    def identicalLists(list1, list2):
+        # O(N*log N); N=len(list1)
+        if len(list1) != len(list2):
+            return False
+        list1 = sorted(list1, key=lambda x: (x.code, x.sourceFile, x.function, x.line))
+        list2 = sorted(list2, key=lambda x: (x.code, x.sourceFile, x.function, x.line))
+        sameErrors = True
+        for index in range(0, len(list1)):
+            if list1[index] != list2[index]:
+
+                sameErrors = False
+                break
+        return sameErrors

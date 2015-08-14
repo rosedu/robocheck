@@ -18,6 +18,5 @@ int main(void) {
     free(x);
     x[2] = 3;
     function("hmm");
-    b[10] = 4;
     return 0;
 }

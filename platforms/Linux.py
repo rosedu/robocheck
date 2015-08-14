@@ -7,6 +7,7 @@
                    last review 20.11.2013
 """
 
+import platform
 import subprocess
 import getpass
 import os
@@ -66,3 +67,6 @@ class Linux:
 
     def cdToTemp(self):
         os.chdir("/tmp")
+
+    def getArchitecture(self):
+        return platform.architecture()[0]

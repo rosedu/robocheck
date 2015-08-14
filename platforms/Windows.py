@@ -7,6 +7,7 @@
 """
 import os
 import zipfile
+import platform
 import subprocess
 
 class Windows:
@@ -54,3 +55,6 @@ class Windows:
     def cdToTemp(self):
         temp = self.getTempPath()
         os.chdir(temp)
+
+    def getArchitecture(self):
+        return platform.architecture()
