@@ -5,51 +5,54 @@
     starting from configuration, up to adding the informations about
     penalties to the output.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-            last rewiew: 30.10.2013
+    (C) 2015, Constantin Mihalache <mihalache.c94@gmail.com>
+            last rewiew: 29.07.2015
 """
 
 import os
 import sys
 
-def confirmPenaltyConfigurations( penaltyDictionary ):
+def confirmPenaltyConfigurations(penaltyDictionary):
     os.system('clear')
+
+    padding = 2
+    max_error_len = max(len(error) for error in penaltyDictionary) + padding
+    spacing = ' '*(max_error_len-len('Error Type'))
+
     print 'Error Type',
-    for i in range(15):
-        print ' ',
-    print 'Mode[S/M] ',
-    print 'Occurences ',
+    print spacing,
+    print 'Mode[S/M]  ',
+    print 'Occurences  ',
     print 'Penalty'
     print ''
 
     for error in penaltyDictionary:
+        error_spacing = ' '*(max_error_len-len(error))
         print error,
-        for i in range( (45-len(error))/2 ):
-            print ' ',
+        print error_spacing,
         penaltyConfig = penaltyDictionary[error]
         mode = penaltyConfig["Mode"]
         penalty = penaltyConfig["Penalty"]
-        if mode == 'S' :
+        mode_spacing = ' '*(len('Mode[S/M]') - len(mode) + padding - 1)
+        if mode == 'S':
             print 'S',
-            for i in range(4):
-                print ' ',
-            print ' ',
+            print mode_spacing,
+            occurance_spacing = ' '*(len('Occurences') + padding)
+            print occurance_spacing,
         else:
             print 'M',
+            print mode_spacing,
             occurence = penaltyConfig["Occurences"]
-            for i in range(4):
-                print ' ',
+            occurance_spacing = ' '*(len('Occurences') - len(str(occurence)) + padding - 1)
             print occurence,
-
-        for i in range(4):
-            print ' ',
+            print occurance_spacing,
         print penalty
 
-    print '\nIs this configuration correct? [Y/n]',
-    option = sys.stdin.readline().splitlines()[0]
-    if option != 'N' and option != 'n':
-        return True
-    else:
+    option = raw_input('\nIs this configuration correct? [Y/n] ')
+    if len(option) is not 0 and option[0] != 'Y' and option[0] != 'y':
         return False
+    else:
+        return True
 
 def penaltyConfig( errorsToLookFor ):
     penaltyDictionary = dict()
@@ -57,8 +60,9 @@ def penaltyConfig( errorsToLookFor ):
     for error in errorsToLookFor:
         print error
         while True:
-            print "\tMode[S/M]:  ",
-            mode = sys.stdin.readline().splitlines()[0].upper()
+            mode = raw_input("\tMode[S/M]: ")
+            if len(mode) is not 0:
+                mode = mode[0].upper()
             if mode != "S" and mode != "M":
                 print "Invalid option!"
             else:
@@ -66,9 +70,8 @@ def penaltyConfig( errorsToLookFor ):
 
         if mode == "M":
             while True:
-                print "\tOccurences: ",
-                occurence = sys.stdin.readline().splitlines()[0]
-                if occurence.isdigit():
+                occurence = raw_input("\tOccurences: ")
+                if len(occurence) is not 0 and occurence.isdigit():
                     occurence = int(occurence)
                     if occurence <= 0:
                         print "Invalid option! Need a number > 0."
@@ -81,8 +84,7 @@ def penaltyConfig( errorsToLookFor ):
 
 
         while True:
-            print "\tPenalty:    ",
-            penalty = sys.stdin.readline().splitlines()[0]
+            penalty = raw_input("\tPenalty: ")
             try:
                 penalty = float(penalty)
                 if penalty < 0:
@@ -150,8 +152,5 @@ def applyPenaltiesGetJson(errorsFound, penaltyDictionary):
                 'penalty': penalty
                 })
 
-    finalOutputJson = dict([("ErrorsFound", errorJsonList), ("OtherPenalties", otherPenaltiesList)]) 
+    finalOutputJson = dict([("ErrorsFound", errorJsonList), ("OtherPenalties", otherPenaltiesList)])
     return finalOutputJson
-
-
-

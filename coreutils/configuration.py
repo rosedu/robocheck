@@ -4,7 +4,8 @@
      This is the module that handles the configurations for Robocheck. It
     parses and helps the user generate the config.json.
     (C) 2013, Andrei Tuicu <andrei.tuicu@gmail.com>
-                 last review 30.10.2013
+    (C) 2015, Constantin Mihalache <mihalache.c94@gmail.com>
+                 last review 29.07.2015
 """
 
 import json
@@ -15,57 +16,52 @@ from coreutils import penaltyhandler
 language = []
 errorsToLookFor = []
 penaltyFlag = []
+penaltyDictionary = {}
 
-def createConfigFile(filepath):
-    os.system('clear')
-    returnPath = os.getcwd()
-    languages = os.listdir('languages')
-    os.chdir('languages')
-
-    toLookFor = []
-
+def selectLanguage(languages):
+    print 'Available languages:'
     for i in range(0, len(languages)):
         print i, languages[i]
-
-    option = sys.stdin.readline().splitlines()[0]
-    if option.isdigit():
-        option = int(option)
+    option = raw_input("Choice: ")
+    print
+    if len(option) is not 0 and option[0].isdigit():
+        option = int(option[0])
         language = languages[option]
+        return language
     else:
         print "You must enter a number!"
-        return False
+        return None
 
-    os.chdir(language)
+def selectErrorsToLookFor():
     try:
         errorListFile = open("ErrorList", "r")
     except IOError as e:
         print "ERROR: Missing ErrorList file for this language!"
-        return
+        return None, None
 
     errors = errorListFile.readlines()
-    if len(errors) == 0:
-        print "ERROR: There are no tools implemented for this language yet!"
-        return
     errorListFile.close()
+    if len(errors) is 0:
+        print "ERROR: There are no tools implemented for this language yet!"
+        return None ,None
 
-    os.chdir(returnPath)
-    for i in range(0, len(errors)):
+    for i in range(0,len(errors)):
         errors[i] = errors[i].splitlines()[0]
 
-
+    toLookFor = []
     print "Errors to look for:"
+    padding = 2
+    max_len = max(len(error) for error in errors) + padding
     for error in errors:
-        print error,
-        dim = (40 - len(error))/2
-        for i in range(1,dim):
-            print ' ',
-        print "[Y/n]: ",
-        option = sys.stdin.readline().splitlines()[0]
-        if option is "N" or option is "n":
+        spacing = ' '*(max_len-len(error))
+        option = raw_input(error + spacing + "[Y/n]: ")
+        if len(option) is not 0 and option[0] is 'N' or option is 'n':
             continue
         else:
             toLookFor.append(error)
-    os.system('clear')
+    return errors, toLookFor
+
+def checkConfiguration(language, errors, toLookFor):
     print "Your configuration: "
     print "Language: ", language
     print
@@ -75,26 +71,45 @@ def createConfigFile(filepath):
         else:
             print "[ ]",
         print error
+    option = raw_input("\nIs this configuration correct? [Y/n]: ")
+    if len(option) is not 0 and option is "N" or option is "n":
+        return False
+    return True
 
+def writeConfigurationFile(filepath, language, toLookFor, penalty):
+    config = open(filepath, 'w')
+    jsonList = []
+    jsonList.append( { 'Language': language, 'Errors': toLookFor, 'Penalty' : penalty } )
+    config.write(json.dumps(jsonList, indent=2))
+    config.close()
 
-    print "\nIs this configuration correct? [Y/n]:"
-    option = sys.stdin.readline().splitlines()[0]
-    if option is "N" or option is "n":
-        createConfigFile()
+def createConfigFile(filepath):
+    os.system('clear')
+    returnPath = os.getcwd()
+    languages = os.listdir('languages')
+    os.chdir('languages')
+
+    language = selectLanguage(languages)
+    if language is None:
+        return False
+
+    os.chdir(language)
+    errors, toLookFor = selectErrorsToLookFor()
+    os.chdir(returnPath)
+    if toLookFor is None:
+        return False
+
+    os.system('clear')
+    if not checkConfiguration(language, errors, toLookFor):
+        createConfigFile(filepath)
     else:
-        print "Do you want to add penalties for errors? [Y/n]"
-        option = sys.stdin.readline().splitlines()[0]
-        if option is "N" or option is "n":
+        option = raw_input("Do you want to add penalties for errors? [Y/n] ")
+        if len(option) is not 0 and option is "N" or option is "n":
             penalty = False
         else:
             penalty = True
-            toLookFor = penaltyhandler.penaltyConfig( toLookFor )
-
-        config = open(filepath, 'w')
-        jsonList = []
-        jsonList.append( { 'Language': language, 'Errors': toLookFor, 'Penalty' : penalty } )
-        config.write(json.dumps(jsonList, indent=2))
-        config.close()
+            toLookFor = penaltyhandler.penaltyConfig(toLookFor)
+        writeConfigurationFile(filepath, language, toLookFor, penalty)
 
         print "\nRobocheck was succefully configured!"
         return True
@@ -103,6 +118,7 @@ def readConfigFile(filepath):
     global language
     global errorsToLookFor
     global penaltyFlag
+    global penaltyDictionary
 
     try:
         configFile = open(filepath, 'r')
@@ -113,9 +129,31 @@ def readConfigFile(filepath):
 
     config =json.load(configFile)
     language = config[0]['Language']
-    errorsToLookFor = config[0]['Errors']
     penaltyFlag = config[0]['Penalty']
+    if penaltyFlag is True:
+        penaltyDictionary = config[0]['Errors']
+        errorsToLookFor = penaltyhandler.getErrorsToLookFor(penaltyDictionary)
+    else:
+        errorsToLookFor = config[0]['Errors']
+        penaltyDictionary = None
     return True
+
+def getJson(errorList):
+    global penaltyDictionary
+    global penaltyFlag
+
+    if penaltyFlag is True:
+        return penaltyhandler.applyPenaltiesGetJson(errorList, penaltyDictionary)
+
+    errorJsonList = []
+    for err in errorList:
+        errorJsonList.append( {
+            'code': err.code,
+            'sourceFile': err.sourceFile,
+            'function': err.function,
+            'line': err.line,
+            })
+    return errorJsonList
 
 def getLanguage():
     global language
@@ -130,5 +168,5 @@ def getPenaltyFlag():
     return penaltyFlag
 
 def getPenaltyDictionary():
-    global errorsToLookFor
-    return errorsToLookFor
+    global penaltyDictionary
+    return penaltyDictionary
