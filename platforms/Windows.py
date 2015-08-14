@@ -25,7 +25,6 @@ class Windows:
                 if tool + ".exe" == fileName \
                     or tool + ".EXE" == fileName:
                     return True
-
         return False
 
     def getFullCommand(self, cmd):
@@ -58,3 +57,6 @@ class Windows:
 
     def getArchitecture(self):
         return platform.architecture()
+
+    def clearScreen(self):
+        os.system('cls')
