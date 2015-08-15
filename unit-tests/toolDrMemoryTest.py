@@ -33,6 +33,9 @@ class TestDrMemory(unittest.TestCase):
         cls.currentPath = None
         cls.currentTest = 0
         cls.exitCode = 0
+        if cls.toolInstance.toolIsInstalled(cls.platformInstance) is False:
+            print "Nothing to test! (tool not installed)"
+            sys.exit(0);
 
     def compileCurrentTest(self):
         testFolderName = self.tests[self.currentTest]
@@ -78,7 +81,6 @@ class TestDrMemory(unittest.TestCase):
         sourcesPath = self.currentPath
 
         self.assertEqual(self.exitCode, 0)
-        self.assertTrue(self.toolInstance.toolIsInstalled(self.platformInstance))
         toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
             exesPath, sourcesPath, errorList)
         self.assertTrue(Error.identicalLists(expectedOutput, toolOutput))

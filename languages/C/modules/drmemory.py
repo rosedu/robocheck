@@ -28,7 +28,7 @@ class drmemory:
     @staticmethod
     def toolIsInstalled(platform):
         return platform.toolIsInstalled("drmemory")\
-            and platform.getArchitecture() == "32bit"
+            and platform.getArchitecture()[0] == "32bit"
 
     @staticmethod
     def canHandleErrors(errorList):
