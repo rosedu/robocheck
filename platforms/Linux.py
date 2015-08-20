@@ -71,5 +71,5 @@ class Linux:
     def getArchitecture(self):
         return platform.architecture()[0]
 
-    def clearScren(self):
+    def clearScreen(self):
         os.system('clear')
