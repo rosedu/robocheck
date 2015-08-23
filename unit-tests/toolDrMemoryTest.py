@@ -24,40 +24,45 @@ class TestDrMemory(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        global platformName
         cls.returnPath = os.getcwd()
         cls.toolInstance = cls.importTool('drmemory')
         cls.platformInstance = platformhandler.getInstance()
-        cls.platformInstance.getArchitecture()
+        cls.platformName = cls.platformInstance.__class__.__name__
         cls.sourceFolder = os.path.abspath('./unit-tests/sources')
-        cls.tests = ['drmemoryTest01'] # add test folders here
-        cls.currentPath = None
-        cls.currentTest = 0
-        cls.exitCode = 0
         if cls.toolInstance.toolIsInstalled(cls.platformInstance) is False:
             print "Nothing to test! (tool not installed)"
             sys.exit(0);
 
-    def compileCurrentTest(self):
-        testFolderName = self.tests[self.currentTest]
-        self.currentPath = os.path.join(self.sourceFolder,testFolderName)
-        os.chdir(self.currentPath)
-        make_build = subprocess.Popen(['make','build'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    def compileCurrentTest(self, testFolderPath):
+        os.chdir(testFolderPath)
+        make_build = 1
+        if self.platformName is 'Windows':
+            make_build = subprocess.Popen(['nmake','/nologo','/f','Makefile','build'],
+                stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        if self.platformName is 'Linux':
+            make_build = subprocess.Popen(['make','-f','GNUmakefile','build'],
+                stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         return make_build.wait() # returns exit code
 
     def cleanCurrentTempFiles(self):
-        make_clean = subprocess.Popen(['make', 'clean'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        make_clean = 1
+        if self.platformName is 'Windows':
+            make_clean = subprocess.Popen(['nmake','/nologo','/f','Makefile','clean'],
+                stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        if self.platformName is 'Linux':
+            make_clean = subprocess.Popen(['make','-f','GNUmakefile','clean'],
+                stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         os.chdir(self.returnPath)
-        self.currentPath = None
         return make_clean.wait() # returns exit code
-
-    def setUp(self):
-        self.exitCode = self.compileCurrentTest()
 
     def tearDown(self):
         self.exitCode = self.cleanCurrentTempFiles()
-        self.currentTest = self.currentTest+1
 
-    def test_all_errors_1(self):
+    def test_all_errors_Linux_1(self):
+        if self.platformName is not 'Linux':
+            return self.skipTest('Linux test')
+
         errorList = ["MEMORY LEAK",
             "INVALID ACCESS",
             "UNITIALIZED VARIABLE USAGE",
@@ -75,12 +80,47 @@ class TestDrMemory(unittest.TestCase):
             Error("MEMORY LEAK", "main.c", "invalid_acces_function", "8"),
             Error("OPENED, BUT NOT CLOSED FILE DESCRIPTOR", "main.c", "main", "24")]
 
+        testFolderName = 'drmemoryTest01'
+        testFolderPath = os.path.join(self.sourceFolder, testFolderName)
+        exitCode = self.compileCurrentTest(testFolderPath)
+        self.assertEqual(exitCode, 0)
+
         exes = ['robocheck-test']
         sources = ['main.c']
-        exesPath = os.path.join(self.currentPath, 'exes')
-        sourcesPath = self.currentPath
+        exesPath = os.path.join(testFolderPath, 'exes')
+        sourcesPath = testFolderPath
 
-        self.assertEqual(self.exitCode, 0)
+        toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
+            exesPath, sourcesPath, errorList)
+        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput))
+
+    def test_all_errors_Windows_1(self):
+        if self.platformName is not 'Windows':
+            return self.skipTest('Windows test')
+
+        errorList = ["MEMORY LEAK",
+            "INVALID ACCESS",
+            "UNITIALIZED VARIABLE USAGE",
+            "INVALID FREE",
+            "OPENED, BUT NOT CLOSED FILE DESCRIPTOR"]
+
+        expectedOutput = [Error("INVALID ACCESS", "main.c", "main", "31"),
+            Error("INVALID ACCESS", "main.c", "invalid_acces_function", "10"),
+            Error("UNITIALIZED VARIABLE USAGE", "main.c", "uninitialized_variable_usage_function", "17"),
+            Error("OPENED, BUT NOT CLOSED FILE DESCRIPTOR", "main.c", "main", "24"),
+            Error("MEMORY LEAK", "main.c", "main", "29"),
+            Error("MEMORY LEAK", "main.c", "invalid_acces_function", "8")]
+
+        testFolderName = 'drmemoryTest01'
+        testFolderPath = os.path.join(self.sourceFolder, testFolderName)
+        exitCode = self.compileCurrentTest(testFolderPath)
+        self.assertEqual(exitCode, 0)
+
+        exes = ['robocheck-test.exe']
+        sources = ['main.c']
+        exesPath = os.path.join(testFolderPath, 'exes')
+        sourcesPath = testFolderPath
+
         toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
             exesPath, sourcesPath, errorList)
         self.assertTrue(Error.identicalLists(expectedOutput, toolOutput))

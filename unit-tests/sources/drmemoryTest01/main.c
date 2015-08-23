@@ -5,7 +5,7 @@
 void invalid_acces_function()
 {
     //memory leak
-    char *p = malloc(4);
+    char *p = (char*)malloc(4*sizeof(char));
     //invalid access
     printf("%c", p[4]);
 }
@@ -26,7 +26,7 @@ int main()
     free(string);
 
     // memory leak
-    char *x = malloc(8);
+    char *x = (char*)malloc(8*sizeof(char));
     //invalid access
     char c = *(x+8);
     //invalid free
