@@ -16,7 +16,7 @@ from coreutils.errors import *
 class TestDrMemory(unittest.TestCase):
     @classmethod
     def importTool(cls, toolName):
-        os.chdir('./languages/C/modules');
+        os.chdir('./languages/C/modules')
         tool = __import__(toolName)
         toolInstance = getattr(tool, toolName)
         os.chdir(cls.returnPath)
@@ -32,7 +32,7 @@ class TestDrMemory(unittest.TestCase):
         cls.sourceFolder = os.path.abspath('./unit-tests/sources')
         if cls.toolInstance.toolIsInstalled(cls.platformInstance) is False:
             print "Nothing to test! (tool not installed)"
-            sys.exit(0);
+            sys.exit(0)
 
     def compileCurrentTest(self, testFolderPath):
         os.chdir(testFolderPath)
@@ -92,7 +92,7 @@ class TestDrMemory(unittest.TestCase):
 
         toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
             exesPath, sourcesPath, errorList)
-        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput), , msg="The output is not as expected!")
+        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput), msg="The output is not as expected!")
 
     def test_all_errors_Windows_1(self):
         if self.platformName is not 'Windows':
