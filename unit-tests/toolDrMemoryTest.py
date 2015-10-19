@@ -83,7 +83,7 @@ class TestDrMemory(unittest.TestCase):
         testFolderName = 'drmemoryTest01'
         testFolderPath = os.path.join(self.sourceFolder, testFolderName)
         exitCode = self.compileCurrentTest(testFolderPath)
-        self.assertEqual(exitCode, 0)
+        self.assertEqual(exitCode, 0, msg="Failed while trying to compile the test!")
 
         exes = ['robocheck-test']
         sources = ['main.c']
@@ -92,7 +92,7 @@ class TestDrMemory(unittest.TestCase):
 
         toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
             exesPath, sourcesPath, errorList)
-        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput))
+        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput), , msg="The output is not as expected!")
 
     def test_all_errors_Windows_1(self):
         if self.platformName is not 'Windows':
@@ -114,7 +114,7 @@ class TestDrMemory(unittest.TestCase):
         testFolderName = 'drmemoryTest01'
         testFolderPath = os.path.join(self.sourceFolder, testFolderName)
         exitCode = self.compileCurrentTest(testFolderPath)
-        self.assertEqual(exitCode, 0)
+        self.assertEqual(exitCode, 0, msg="Failed while trying to compile the test!")
 
         exes = ['robocheck-test.exe']
         sources = ['main.c']
@@ -123,7 +123,7 @@ class TestDrMemory(unittest.TestCase):
 
         toolOutput = self.toolInstance.runToolGetErrors(self.platformInstance, exes, sources,
             exesPath, sourcesPath, errorList)
-        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput))
+        self.assertTrue(Error.identicalLists(expectedOutput, toolOutput), msg="The output is not as expected!")
 
 if __name__ == '__main__':
     unittest.main()
