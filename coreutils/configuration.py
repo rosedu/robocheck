@@ -11,7 +11,7 @@
 import json
 import sys
 import os
-from coreutils import penaltyhandler
+from coreutils import penaltyhandler, platformhandler
 
 language = []
 errorsToLookFor = []
@@ -84,9 +84,10 @@ def writeConfigurationFile(filepath, language, toLookFor, penalty):
     config.close()
 
 def createConfigFile(filepath):
-    os.system('clear')
+    platformInstance = platformhandler.getInstance()
+    platformInstance.clearScreen()
     returnPath = os.getcwd()
-    languages = os.listdir('languages')
+    languages = sorted(os.listdir('languages'), reverse=True)
     os.chdir('languages')
 
     language = selectLanguage(languages)
@@ -99,7 +100,7 @@ def createConfigFile(filepath):
     if toLookFor is None:
         return False
 
-    os.system('clear')
+    platformInstance.clearScreen()
     if not checkConfiguration(language, errors, toLookFor):
         createConfigFile(filepath)
     else:

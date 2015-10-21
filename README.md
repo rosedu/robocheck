@@ -1,101 +1,129 @@
-robocheck
-=========
-
+Robocheck
+==========
 Work in progress.
 
-How to
-=========
+Installation
+=================
+##### 1. Linux
+First of all download Robocheck
+```
+$ git clone git@github.com:rosedu/robocheck.git
+```
+###### 1.1 Using the installation script
+Run the following command from the downloaded folder.
+```
+$ ./install-robocheck-linux.sh
+```
+From now on you can run Robocheck just by using the command `$ robocheck`.
 
-1 Install Robocheck
+###### 1.2 Step by step installation:
+After you've downloaded the files check to see if **Python** is installed.
+You can install it by running
+```
+$ apt-get install python
+```
+The next step would be to install **python-pip**
+```
+$ apt-get install python-pip
+```
+Create an alias for Robocheck in `~/.bashrc` like this:
+```
+alias robocheck="python /path/to/robocheck-core.py"
+```
+Installing Robocheck's dependencies:
 
- 1.1 Linux instalation
- 
-  First of all run:
-  
-    git clone git@github.com:rosedu/robocheck.git
+1. **Valgrind**
+    ```
+    $ valgrind --version
+    ```
+    If the command is not found run:
+    ```
+    $ apt-get install valgrind
+    ```
+2. **Dr. Memory**
+    ```
+    $ drmemory -version
+    ```
+    If the command is not found download Dr. Memory from [here](https://drmemory.googlecode.com/files/DrMemory-Linux-1.5.1-6.tar.gz). After downloading extract the files from the archive using
+    ```
+    $ tar -xzf DrMemory-Linux-1.5.1-6.tar.gz
+    ```
+    Create a symbolic link to drmemory's binary in `/bin` so that it can be run using drmemory command.
+    ```
+    $ ln -s /path/to/DrMemory-Linux-1.5.1-6/bin/drmemory.pl /bin/drmemory
+    ```
+    Check to see if it's working by running
+    ```
+    $ drmemory -version
+    ```
 
-  1.1.1 Using the instaltion script
-   
-  After you've donwloaded Robocheck's files just run:
-  
-    install-robocheck-linux.sh
-    
-  directly from the folder. From now on you can run Robocheck just by using the command robocheck.
+You have succesfully installed Robocheck! :)
 
-   1.1.2 Step by step installation:
-   
-    * After you've downloaded the files check to see if Python is installed.
-    In order to do that run:
-        python --version
+##### 2. Windows
+Download robocheck by clicking [here](https://github.com/rosedu/robocheck/archive/master.zip) or on the **Download ZIP** button on the right of this page and then extract the archive.
 
-        if the command is not found run:
-            apt-get install python
-        if the version is older than Python 2.7 run:
-            apt-get update python
+Before moving further make sure you installed:
+* **Python2.7** along with **python-pip**. You can download the installer from [here](https://www.python.org/ftp/python/2.7.10/python-2.7.10.amd64.msi).
+* **Microsoft Visual Studio**. The installer is found [here](https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx). (**Before running Robocheck** `cl` and `nmmake` commands should be available from the command prompt. [Go to this link]() for a guide on how to do this.)
 
-    * Create an alias for Robocheck in ~/.bashrc like this:
-        alias robocheck="python /path/to/robocheck-core.py"
 
-    IMPORTANT!!! Never run Robocheck through a symbolic link!
-    Use either an alias or the full command.
 
-    * Installing Robocheck's dependencies:
-        a) Valgrind
-        run: valgrind --version
-        if the command is not found run:
-            apt-get install valgrind
+###### 1.1 Using the installation script
+Open a command prompt window and go to the extracted directory.
+```
+C:\path\to\robocheck> install-robocheck-windows.bat
+```
+If the installation was successful the next step should be setting the environment variables.
 
-        b) Dr. Memory
-        run: drmemory -version
+Go to **Control Panel > System > Advanced system settings** and then, under the **Advanced** tab, click on *Environment Variables...*.
 
-        if the command is not found download Dr. Memory fron here:
-            https://drmemory.googlecode.com/files/DrMemory-Linux-1.5.1-6.tar.gz
+Edit the **PATH** system variable by appending the following, each suffixed by a semicolon:
+* robocheck folder path
+* drmemory bin folder path
 
-        after donwloading extract the files from the archive using
-            tar -xzf DrMemory-Linux-1.5.1-6.tar.gz
 
-        create a symbolic link to drmemory's binary in /bin so that it can be
-        runned using drmemory command.
+```
+C:\last\path;C:\path\to\robocheck;C:\path\to\drmemory\bin;
+```
 
-        ln -s /path/to/DrMemory-Linux-1.5.1-6/bin/drmemory.pl /bin/drmemory
+Test if robocheck is available from command prompt
+```
+C:\> robocheck
+```
+###### 1.2 Step by step installation
+Open a command prompt.
+```
+C:\> pip install -U mock
+```
+Download Dr. Memory from [this link](https://bintray.com/artifact/download/bruening/DrMemory/DrMemory-Windows-1.8.1-RC1.zip). Extract the archive and then add the path of the Dr. Memory `bin/` directory to the `PATH` variable as shown above.
 
-        check to see if it's working by running drmemory -version
+You have succesfully installed Robocheck! :)
 
-    * You have succesfully installed Robocheck! :)
+Configuration
+==============
 
-    1.2 Windows installation
-        Availiable soon!
+###### 1. If you have an alias in `.bashrc` run:
+```
+robocheck --config
+```
+###### 2. Otherwise run:
+```
+python /path/to/robocheck-core.py --config
+```
 
-2 Configure Robocheck
+Using Robocheck
+================
+**IMPORTANT!!! Never run Robocheck through a symbolic link!** Use either an alias or the full command.
 
-   2.1 If you have an alias in .bashrc run:
-   
-    robocheck --config
+Robocheck receives a zip archive that must have a predefined structure!
+###### 1. Zip Archive's structure
+The archive must have in the root two folders `src/` and `bins/`. In
+the `src/` folder there should be all the source files for the executables and
+in `bins/` all the binaries/executables and if necessary their data files.
 
-   2.2 Otherwise run:
-   
-    python /path/to/robocheck-core.py --config
+###### 2. Running robocheck
+After the archive was created using the specifications from 3.1 you can run Robocheck:
 
-3 Run Robocheck
-
-  IMPORTANT!!! Never run Robocheck through a symbolic link!
-Use either an alias or the full command.
-
-    Robocheck receives a zip archive that must have a predefined structure!
-
-    3.1 Zip Archive's structure
-    
-     The archive must have in the root two folders "src" and "bins". In
-    the src folder there should be all the source files for the executables and
-    in bins all the binaries/executables and if necessary their data files.
-
-    3.2 Running robocheck
-    
-     After the archive was created using the specifications from 3.1 you can
-    run Robocheck:
-    
-        -if you have an alias in .bashrc using:
-        robocheck /path/to/Archive.zip
-
-        -otherwise:
-        python /path/to/robocheck-core.py /path/to/Archive.zip
+* (Linux) If you have an alias in `.bashrc` using `robocheck /path/to/Archive.zip`
+* (Windows) If the environment paths are set accordingly using `python robocheck.py /path/to/Archive.zip`
+* Otherwise using `python /path/to/robocheck-core.py /path/to/Archive.zip`

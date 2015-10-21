@@ -1,6 +1,9 @@
 build:
 	mkdir exes
-	gcc -g main.c -o ./exes/robocheck-test
-	cp input.txt ./exes/input.txt
+	cl /Zi /MT /EHsc /Oy- /Ob0 /Ferobocheck-test.exe main.c
+	xcopy robocheck-test.exe exes\ /y
+	xcopy input.txt exes\ /y
 clean:
-	rm -r exes
+	rd /s /q exes
+	del main.obj robocheck-test.exe
+	del *.pdb *.ilk

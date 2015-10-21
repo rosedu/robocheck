@@ -28,7 +28,7 @@ class drmemory:
     @staticmethod
     def toolIsInstalled(platform):
         return platform.toolIsInstalled("drmemory")\
-            and platform.getArchitecture() == "32bit"
+            and platform.getArchitecture()[0] == "32bit"
 
     @staticmethod
     def canHandleErrors(errorList):
@@ -55,14 +55,13 @@ class drmemory:
             return None
         try:
             fflNotSplited = outputLine.split("# ")[1]
-            sourceAndLine = fflNotSplited.split('/')
-            sourceAndLine = sourceAndLine[ len(sourceAndLine) - 1 ]
-            sourceFile = sourceAndLine.split(':')[0]
+            sourceAndLine = fflNotSplited.split('[')[-1].split(']')[0].split(':')
+            sourceFile = sourceAndLine[-2].split(os.sep)[-1]
             if sourceFile not in sources:
                 return None
 
             function = fflNotSplited.split(' ')[1]
-            line = sourceAndLine.split(':')[1].split(']')[0]
+            line = sourceAndLine[-1]
         except IndexError:
             return None
 
